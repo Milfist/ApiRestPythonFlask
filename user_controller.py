@@ -1,17 +1,19 @@
 import os
 
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-from flask_marshmallow import Marshmallow
 
-from schemas.user_schema import UserSchema
-from models.user import User
+from models.user import User, db
+from schemas.user_schema import UserSchema, ma
+
 
 app = Flask(__name__)
+db.init_app(app)
+ma.init_app(app)
+
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'crud.sqlite')
-db = SQLAlchemy(app)
-ma = Marshmallow(app)
+
+# db.create_all('__all__', app)
 
 user_schema = UserSchema()
 users_schema = UserSchema(many=True)
@@ -40,14 +42,14 @@ def get_user():
 
 
 # endpoint to get user detail by id
-@app.route("/user/<id>", methods=["GET"])
+@app.route("/user/<user_id>", methods=["GET"])
 def user_detail(user_id):
     user = User.query.get(user_id)
     return user_schema.jsonify(user)
 
 
 # endpoint to update user
-@app.route("/user/<id>", methods=["PUT"])
+@app.route("/user/<user_id>", methods=["PUT"])
 def user_update(user_id):
     user = User.query.get(user_id)
     username = request.json['username']
@@ -61,9 +63,9 @@ def user_update(user_id):
 
 
 # endpoint to delete user
-@app.route("/user/<id>", methods=["DELETE"])
-def user_delete(id):
-    user = User.query.get(id)
+@app.route("/user/<user_id>", methods=["DELETE"])
+def user_delete(user_id):
+    user = User.query.get(user_id)
     db.session.delete(user)
     db.session.commit()
 
