@@ -30,7 +30,7 @@ def add_user():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify(new_user)
+    return jsonify('{ok: ok}')
 
 
 # endpoint to show all users
